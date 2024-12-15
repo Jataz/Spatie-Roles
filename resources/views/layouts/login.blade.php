@@ -30,10 +30,10 @@
   <link href="{{ asset('css/style.css') }}" rel="stylesheet">
 </head>
 
-<body>
+<body class="hold-transition login-page">
 
 
-  <main id="main" class="main">
+  <main>
       @yield('content')
   </main>
 
