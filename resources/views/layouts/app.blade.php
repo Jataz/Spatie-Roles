@@ -1,13 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>@yield('title', 'Default Title')</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
+  <!-- CSRF Token -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
+  <title>@yield('title', 'Dashboard')</title>
 
   <!-- Favicons -->
   <link href="{{ asset('img/favicon.png') }}" rel="icon">
@@ -70,11 +73,36 @@
   <!-- Template Main JS File -->
   <script src="{{ asset('js/main.js') }}"></script>
 
-  <script>
-    function goBack() {
-        window.history.back();
-    }
-  </script>
+
+    <script>
+        let warningTimeout = {{ config('session.lifetime') - 5 }} * 60 * 1000; // 5 minutes before timeout
+        let logoutTimeout = {{ config('session.lifetime') }} * 60 * 1000; // Session timeout
+
+        let warningTimer = setTimeout(() => {
+            alert('You will be logged out soon due to inactivity.');
+        }, warningTimeout);
+
+        let logoutTimer = setTimeout(() => {
+            window.location.href = "{{ route('logout') }}";
+        }, logoutTimeout);
+
+        document.body.addEventListener('mousemove', resetTimers); // Reset on user activity
+        document.body.addEventListener('keypress', resetTimers);
+
+        function resetTimers() {
+            clearTimeout(warningTimer);
+            clearTimeout(logoutTimer);
+
+            warningTimer = setTimeout(() => {
+                alert('You will be logged out soon due to inactivity.');
+            }, warningTimeout);
+
+            logoutTimer = setTimeout(() => {
+                window.location.href = "{{ route('logout') }}";
+            }, logoutTimeout);
+        }
+    </script>
+
 
   @stack('extra_scripts')
 
