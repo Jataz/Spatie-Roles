@@ -70,38 +70,40 @@
   <script src="{{ asset('vendor/tinymce/tinymce.min.js') }}"></script>
   <script src="{{ asset('vendor/php-email-form/validate.js') }}"></script>
 
+
   <!-- Template Main JS File -->
   <script src="{{ asset('js/main.js') }}"></script>
+  
+  <script>
+    let warningTimeout = (2 * 60 * 1000) - (5 * 1000); // 5 seconds before timeout
+    let logoutTimeout = 2 * 60 * 1000; // 2 minutes in milliseconds
 
+    let warningTimer = setTimeout(() => {
+        alert('You will be logged out in 5 seconds due to inactivity.');
+    }, warningTimeout);
 
-    <script>
-        let warningTimeout = {{ config('session.lifetime') - 5 }} * 60 * 1000; // 5 minutes before timeout
-        let logoutTimeout = {{ config('session.lifetime') }} * 60 * 1000; // Session timeout
+    let logoutTimer = setTimeout(() => {
+        window.location.href = "{{ route('login') }}"; // Redirect to login form
+    }, logoutTimeout);
 
-        let warningTimer = setTimeout(() => {
-            alert('You will be logged out soon due to inactivity.');
+    // Reset timers on user activity
+    document.body.addEventListener('mousemove', resetTimers);
+    document.body.addEventListener('keypress', resetTimers);
+
+    function resetTimers() {
+        clearTimeout(warningTimer);
+        clearTimeout(logoutTimer);
+
+        warningTimer = setTimeout(() => {
+            alert('You will be logged out in 5 seconds due to inactivity.');
         }, warningTimeout);
 
-        let logoutTimer = setTimeout(() => {
-            window.location.href = "{{ route('logout') }}";
+        logoutTimer = setTimeout(() => {
+            window.location.href = "{{ route('login') }}"; // Redirect to login form
         }, logoutTimeout);
+    }
+</script>
 
-        document.body.addEventListener('mousemove', resetTimers); // Reset on user activity
-        document.body.addEventListener('keypress', resetTimers);
-
-        function resetTimers() {
-            clearTimeout(warningTimer);
-            clearTimeout(logoutTimer);
-
-            warningTimer = setTimeout(() => {
-                alert('You will be logged out soon due to inactivity.');
-            }, warningTimeout);
-
-            logoutTimer = setTimeout(() => {
-                window.location.href = "{{ route('logout') }}";
-            }, logoutTimeout);
-        }
-    </script>
 
 
   @stack('extra_scripts')
