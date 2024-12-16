@@ -26,15 +26,28 @@ class LdapUser extends BaseLdapUser
      */
     public static function authenticate($username, $password)
     {
-        // Attempt to bind the user to Active Directory
+        // Fetch the user from Active Directory
         $ldapUser = self::where('samaccountname', $username)->first();
-
-        if ($ldapUser && $ldapUser->getConnection()->auth()->attempt($ldapUser->getDn(), $password)) {
-            return $ldapUser;
+    
+        if ($ldapUser) {
+            // Retrieve the userAccountControl attribute (ensure it's an integer)
+            $userAccountControl = (int) $ldapUser->getFirstAttribute('userAccountControl');
+    
+            // Check if the account is disabled (flag 2)
+            if ($userAccountControl & 2) {
+                // Account is disabled
+                return null;
+            }
+    
+            // If the account is active, attempt authentication
+            if ($ldapUser->getConnection()->auth()->attempt($ldapUser->getDn(), $password)) {
+                return $ldapUser; // Successful login for active user
+            }
         }
-
-        return null;
+    
+        return null; // Authentication failed or account is inactive
     }
+    
 
     /**
      * Fetch user details after successful authentication.
